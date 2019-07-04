@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "506684280598",
+    "firebase_url": "https://chatdril-40c82.firebaseio.com",
+    "project_id": "chatdril-40c82",
+    "storage_bucket": "chatdril-40c82.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:506684280598:android:b5e4471213c7699d",
+        "android_client_info": {
+          "package_name": "com.example.ritik.chatdril"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "506684280598-u5qstd1qsvrnmsouecl4bjefcjtv3acu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ritik.chatdril",
+            "certificate_hash": "612fcaab1b106a627f1b345f5454bec65b0d77d2"
+          }
+        },
+        {
+          "client_id": "506684280598-kbthpcia5itls7tr224q17clujjgjo3n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrck3RK-cCFPb15gYeSECYGmRz8tKfCCQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "506684280598-kbthpcia5itls7tr224q17clujjgjo3n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
