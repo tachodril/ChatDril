@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
         mauth=FirebaseAuth.getInstance();
         rootreference= FirebaseDatabase.getInstance().getReference();
 
-        currentuserid=mauth.getCurrentUser().getUid();
     }
 
     @Override
@@ -236,6 +235,8 @@ public class MainActivity extends AppCompatActivity {
         onlinestate.put("date",savecurrentdate);
         onlinestate.put("state",state);
 
+
+        currentuserid=mauth.getCurrentUser().getUid();
         rootreference.child("Users").child(currentuserid).child("userState")
                 .updateChildren(onlinestate);
 

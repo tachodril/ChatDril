@@ -28,7 +28,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +44,7 @@ public class ChatActivity extends AppCompatActivity {
     private CircleImageView userImage;
 
     private Toolbar chattoolbar;
-    private ImageButton sendmsgbutton;
+    private ImageButton sendmsgbutton,sendfilesbutton;
     private EditText msginputtext;
 
     private FirebaseAuth mauth;
@@ -53,6 +55,8 @@ public class ChatActivity extends AppCompatActivity {
     private MessageAdapter messageAdapter;
 
     private RecyclerView usermessagelist;
+
+    private String savecurrenttime,savecurrentdate;
 
 
     @Override
@@ -101,6 +105,7 @@ public class ChatActivity extends AppCompatActivity {
         actionBar.setCustomView(actionbarview);
 
         sendmsgbutton=findViewById(R.id.send_msg_btn);
+        sendfilesbutton=findViewById(R.id.send_files_btn);
         msginputtext=findViewById(R.id.input_msg);
 
         userImage=findViewById(R.id.custom_profile_image);
@@ -112,11 +117,24 @@ public class ChatActivity extends AppCompatActivity {
         linearLayoutManager=new LinearLayoutManager(this);
         usermessagelist.setLayoutManager(linearLayoutManager);
         usermessagelist.setAdapter(messageAdapter);
+
+
+
+        Calendar calendar=Calendar.getInstance();
+
+        SimpleDateFormat currentdate =  new SimpleDateFormat("MMM dd, yyyy");
+        savecurrentdate=currentdate.format(calendar.getTime());
+
+        SimpleDateFormat currenttime =  new SimpleDateFormat("hh:mm a");
+        savecurrenttime=currenttime.format(calendar.getTime());
+
+
+
     }
 
     private void Displaylastseen()
     {
-        rootref.child("Users").child(msgsenderid)
+        rootref.child("Users").child(msgreceiverid)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot)
@@ -210,6 +228,10 @@ public class ChatActivity extends AppCompatActivity {
             msgtextbody.put("message",msgtext);
             msgtextbody.put("type","text");
             msgtextbody.put("from",msgsenderid);
+            msgtextbody.put("to",msgreceiverid);
+            msgtextbody.put("messageID",msgpushid);
+            msgtextbody.put("time",savecurrenttime);
+            msgtextbody.put("date",savecurrentdate);
 
             Map msgbodydetails=new HashMap();
             msgbodydetails.put(msgsenderref+"/"+msgpushid,msgtextbody);

@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,6 +35,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     {
         public TextView sendermsgtext,receivermsgtext;
         public CircleImageView receiverprofileimage;
+        public ImageView msgsenderpicture,msgreceiverpicture;
 
         public MessageViewholder(@NonNull View itemView) {
             super(itemView);
@@ -41,7 +43,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             sendermsgtext=itemView.findViewById(R.id.sender_msg_text);
             receivermsgtext=itemView.findViewById(R.id.receiver_msg_text);
             receiverprofileimage=itemView.findViewById(R.id.msg_profile_image);
-
+            msgsenderpicture=itemView.findViewById(R.id.message_sender_image_view);
+            msgreceiverpicture=itemView.findViewById(R.id.message_receiver_image_view);
         }
     }
 
@@ -84,17 +87,21 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             }
         });
 
+        messageViewholder.receivermsgtext.setVisibility(View.GONE);
+        messageViewholder.receiverprofileimage.setVisibility(View.GONE);
+        messageViewholder.sendermsgtext.setVisibility(View.GONE);
+        messageViewholder.msgsenderpicture.setVisibility(View.GONE);
+        messageViewholder.msgreceiverpicture.setVisibility(View.GONE);
+
         if(frommsgtype.equals("text"))
         {
-            messageViewholder.receivermsgtext.setVisibility(View.INVISIBLE);
-            messageViewholder.receiverprofileimage.setVisibility(View.INVISIBLE);
-            messageViewholder.sendermsgtext.setVisibility(View.INVISIBLE);
+
 
             if(fromuserid.equals(msgsenderid))
             {
                 messageViewholder.sendermsgtext.setVisibility(View.VISIBLE);
                 messageViewholder.sendermsgtext.setBackgroundResource(R.drawable.sender_message_layout);
-                messageViewholder.sendermsgtext.setText(messages.getMessage());
+                messageViewholder.sendermsgtext.setText(messages.getMessage()+"\n \n"+messages.getTime()+" - "+messages.getDate());
             }
             else
             {
@@ -102,7 +109,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 messageViewholder.receiverprofileimage.setVisibility(View.VISIBLE);
 
                 messageViewholder.receivermsgtext.setBackgroundResource(R.drawable.receiver_message_layout);
-                messageViewholder.receivermsgtext.setText(messages.getMessage());
+                messageViewholder.receivermsgtext.setText(messages.getMessage()+"\n \n"+messages.getTime()+" - "+messages.getDate());
             }
         }
     }

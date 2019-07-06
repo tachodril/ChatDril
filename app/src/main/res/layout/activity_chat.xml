@@ -23,29 +23,47 @@
 
     </android.support.v7.widget.RecyclerView>
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/chat_linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
         android:background="@android:color/background_light"
         android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        >
+
+
+        <ImageButton
+            android:id="@+id/send_files_btn"
+            android:layout_width="60dp"
+            android:layout_height="50dp"
+            android:src="@drawable/send_files"
+            android:layout_alignParentStart="true"
+            android:backgroundTint="@android:color/white"
+            />
+
 
         <EditText
-            android:layout_width="0dp"
-            android:layout_weight="6"
-            android:layout_height="wrap_content"
             android:id="@+id/input_msg"
-            android:hint="Type message here..."
-            android:padding="15dp"
-            />
-        <ImageButton
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:id="@+id/send_msg_btn"
-            android:src="@drawable/send_message"
+            android:hint="type message here..."
+            android:padding="15dp"
+            android:maxLines="5"
+            android:layout_toEndOf="@+id/send_files_btn"
+            android:layout_toStartOf="@+id/send_message_btn"
             />
-    </LinearLayout>
+
+
+        <ImageButton
+            android:id="@+id/send_msg_btn"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/send_message"
+            android:layout_alignParentEnd="true"
+            android:backgroundTint="@android:color/white"
+            />
+
+    </RelativeLayout>
 </RelativeLayout>
