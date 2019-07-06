@@ -25,6 +25,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -71,6 +72,7 @@ public class ChatActivity extends AppCompatActivity {
 
 
         initialise();
+        Displaylastseen();
 
         userName.setText(msgreceivername);
         Picasso.get().load(msgreceiverimage).placeholder(R.drawable.profile_image).into(userImage);
@@ -110,6 +112,41 @@ public class ChatActivity extends AppCompatActivity {
         linearLayoutManager=new LinearLayoutManager(this);
         usermessagelist.setLayoutManager(linearLayoutManager);
         usermessagelist.setAdapter(messageAdapter);
+    }
+
+    private void Displaylastseen()
+    {
+        rootref.child("Users").child(msgsenderid)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
+                    {
+                        if(dataSnapshot.child("userState").hasChild("state"))
+                        {
+                            String state= dataSnapshot.child("userState").child("state").getValue().toString();
+                            String date= dataSnapshot.child("userState").child("date").getValue().toString();
+                            String time= dataSnapshot.child("userState").child("time").getValue().toString();
+
+                            if(state.equals("online"))
+                            {
+                                userLastseen.setText("online");
+                            }
+                            else if(state.equals("offline"))
+                            {
+                                userLastseen.setText("Last seen: "+date+" "+time);
+                            }
+                        }
+                        else
+                        {
+                            userLastseen.setText("offline");
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     @Override

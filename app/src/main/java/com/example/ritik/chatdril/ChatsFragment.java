@@ -90,11 +90,32 @@ public class ChatsFragment extends Fragment {
                                         retimage[0] =dataSnapshot.child("image").getValue().toString();
                                         Picasso.get().load(retimage[0]).placeholder(R.drawable.profile_image).into(holder.mprofileImage);
                                     }
+
                                     final String retname=dataSnapshot.child("name").getValue().toString();
                                     final String retstatus=dataSnapshot.child("status").getValue().toString();
 
                                     holder.muserName.setText(retname);
                                     holder.muserStatus.setText("Last seen :"+"\n"+"Date "+"Time");
+
+                                    if(dataSnapshot.child("userState").hasChild("state"))
+                                    {
+                                        String state= dataSnapshot.child("userState").child("state").getValue().toString();
+                                        String date= dataSnapshot.child("userState").child("date").getValue().toString();
+                                        String time= dataSnapshot.child("userState").child("time").getValue().toString();
+
+                                        if(state.equals("online"))
+                                        {
+                                            holder.muserStatus.setText("online");
+                                        }
+                                        else if(state.equals("offline"))
+                                        {
+                                            holder.muserStatus.setText("Last seen: "+date+" "+time);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        holder.muserStatus.setText("offline");
+                                    }
 
                                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                                         @Override
