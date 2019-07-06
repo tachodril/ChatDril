@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         if(currentuser!=null)
         {
             updateuserstatus("offline");
+            Log.e("VIVZ","on stop is called");
         }
     }
 
@@ -103,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         if(currentuser!=null)
         {
             updateuserstatus("offline");
+            Log.e("VIVZ","on destroy is called");
         }
     }
 

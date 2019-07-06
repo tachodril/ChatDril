@@ -1,8 +1,14 @@
 package com.example.ritik.chatdril;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,6 +33,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -57,6 +67,12 @@ public class ChatActivity extends AppCompatActivity {
     private RecyclerView usermessagelist;
 
     private String savecurrenttime,savecurrentdate;
+    private String checker="",myurl="";
+    private StorageTask uploadtask;
+    private Uri fileuri;
+
+
+    private ProgressDialog loadingbar;
 
 
     @Override
@@ -88,6 +104,87 @@ public class ChatActivity extends AppCompatActivity {
                 sendmessage();
             }
         });
+
+        sendfilesbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                CharSequence options[]= new CharSequence[]
+                        {
+                                "Images",
+                                "PDF Files",
+                                "MS Word Files"
+                        };
+                AlertDialog.Builder builder=new AlertDialog.Builder(ChatActivity.this,R.style.MyAlertDialogStyle);
+                builder.setTitle("Select the type of File");
+
+                builder.setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        if(which==0)
+                        {
+                            checker="image";
+
+                            Intent intent=new Intent();
+                            intent.setAction(Intent.ACTION_GET_CONTENT);
+                            intent.setType("image/*");
+                            startActivityForResult(intent.createChooser(intent,"Select Image"),438);
+                        }
+                        if(which==1)
+                        {
+                            checker="pdf";
+                        }
+                        if(which==2)
+                        {
+                            checker="docx";
+                        }
+                    }
+                });
+                builder.show();
+            }
+        });
+
+        //start of onstart
+
+        rootref.child("Messages").child(msgsenderid).child(msgreceiverid)
+                .addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s)
+                    {
+                        Messages messages=dataSnapshot.getValue(Messages.class);
+
+                        messagesList.add(messages);
+
+                        messageAdapter.notifyDataSetChanged();
+
+                        usermessagelist.smoothScrollToPosition(usermessagelist.getAdapter().getItemCount());
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+        //end of on start
+
+
     }
 
     private void initialise() {
@@ -119,6 +216,7 @@ public class ChatActivity extends AppCompatActivity {
         usermessagelist.setAdapter(messageAdapter);
 
 
+        loadingbar=new ProgressDialog(this,R.style.MyAlertDialogStyle);
 
         Calendar calendar=Calendar.getInstance();
 
@@ -130,6 +228,106 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode==438 && resultCode==RESULT_OK && data!=null && data.getData()!=null)
+        {
+
+            loadingbar.setTitle("Sending File");
+            loadingbar.setMessage("Please wait, we are sending your file...");
+            loadingbar.setCanceledOnTouchOutside(false);
+            loadingbar.show();
+
+            fileuri=data.getData();
+
+            if(!checker.equals("image"))
+            {
+
+            }
+            else if(checker.equals("image"))
+            {
+                StorageReference storageReference= FirebaseStorage.getInstance().getReference().child("Image Files");
+
+
+                final String msgsenderref="Messages/"+ msgsenderid+"/"+msgreceiverid;
+                final String msgreceiverref="Messages/"+msgreceiverid+"/"+msgsenderid;
+
+                DatabaseReference usermsgkeyref=rootref.child("Messages")
+                        .child(msgsenderid).child(msgreceiverid).push();
+
+                final String msgpushid=usermsgkeyref.getKey();
+
+                final StorageReference filepath=storageReference.child(msgpushid+"."+"jpg");
+                uploadtask=filepath.putFile(fileuri);
+
+                uploadtask.continueWithTask(new Continuation() {
+                    @Override
+                    public Object then(@NonNull Task task) throws Exception
+                    {
+                        if(!task.isSuccessful())
+                        {
+                            throw task.getException();
+                        }
+                        return filepath.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task)
+                    {
+                        if(task.isSuccessful())
+                        {
+                            Uri downloadurl=task.getResult();
+                            myurl=downloadurl.toString();
+
+
+                            Map msgtextbody=new HashMap();
+                            msgtextbody.put("message",myurl);
+                            msgtextbody.put("name",fileuri.getLastPathSegment());
+                            msgtextbody.put("type",checker);
+                            msgtextbody.put("from",msgsenderid);
+                            msgtextbody.put("to",msgreceiverid);
+                            msgtextbody.put("messageID",msgpushid);
+                            msgtextbody.put("time",savecurrenttime);
+                            msgtextbody.put("date",savecurrentdate);
+
+                            Map msgbodydetails=new HashMap();
+                            msgbodydetails.put(msgsenderref+"/"+msgpushid,msgtextbody);
+                            msgbodydetails.put(msgreceiverref+"/"+msgpushid,msgtextbody);
+
+                            rootref.updateChildren(msgbodydetails)
+                                    .addOnCompleteListener(new OnCompleteListener() {
+                                        @Override
+                                        public void onComplete(@NonNull Task task)
+                                        {
+                                            if(task.isSuccessful())
+                                            {
+                                                loadingbar.dismiss();
+                                                Toast.makeText(ChatActivity.this, "Message sent successfully...", Toast.LENGTH_SHORT).show();
+                                            }
+                                            else
+                                            {
+                                                loadingbar.dismiss();
+                                                Toast.makeText(ChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                                            }
+                                            msginputtext.setText("");
+                                        }
+                                    });
+                        }
+                    }
+                });
+
+            }
+            else
+            {
+                loadingbar.dismiss();
+                Toast.makeText(this, "Nothing Selected, Error.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void Displaylastseen()
@@ -171,40 +369,6 @@ public class ChatActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        rootref.child("Messages").child(msgsenderid).child(msgreceiverid)
-                .addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s)
-                    {
-                        Messages messages=dataSnapshot.getValue(Messages.class);
-
-                        messagesList.add(messages);
-
-                        messageAdapter.notifyDataSetChanged();
-
-                        usermessagelist.smoothScrollToPosition(usermessagelist.getAdapter().getItemCount());
-                    }
-
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                    }
-
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                    }
-
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
     }
 
     private void sendmessage()
