@@ -27,6 +27,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:11.8.0'
 
     implementation 'com.firebaseui:firebase-ui-database:3.2.2'
+    implementation 'com.google.firebase:firebase-messaging:11.8.0'
 
     implementation 'com.android.support:support-v4:28.0.0'
     testImplementation 'junit:junit:4.12'

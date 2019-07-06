@@ -237,24 +237,69 @@ public class RequestFragment extends Fragment
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 if(dataSnapshot.hasChild("image"))
                                                 {
-                                                    final String requestusername=dataSnapshot.child("name").getValue().toString();
-                                                    final String requestuserstatus=dataSnapshot.child("status").getValue().toString();
+
                                                     final String requestprofileimage=dataSnapshot.child("image").getValue().toString();
 
-                                                    holder.userName.setText(requestusername);
-                                                    holder.userStatus.setText("You have sent a request to "+requestusername);
+
                                                     Picasso.get().load(requestprofileimage).placeholder(R.drawable.profile_image).into(holder.profileImage);
 
                                                 }
-                                                else
-                                                {
-                                                    final String requestusername=dataSnapshot.child("name").getValue().toString();
-                                                    final String requestuserstatus=dataSnapshot.child("status").getValue().toString();
 
-                                                    holder.userName.setText(requestusername);
-                                                    holder.userStatus.setText(requestuserstatus);
-                                                }
+                                                final String requestusername=dataSnapshot.child("name").getValue().toString();
+                                                final String requestuserstatus=dataSnapshot.child("status").getValue().toString();
 
+                                                holder.userName.setText(requestusername);
+                                                holder.userStatus.setText("You have sent a request to "+requestusername);
+
+                                                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View v)
+                                                    {
+                                                        CharSequence options[]=new CharSequence[]
+                                                                {
+                                                                        "Cancel chat request"
+                                                                };
+                                                        AlertDialog.Builder builder=new AlertDialog.Builder(getContext(),R.style.MyAlertDialogStyle);
+                                                        builder.setTitle("Already Sent Request");
+
+                                                        builder.setItems(options, new DialogInterface.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(DialogInterface dialog, int i)
+                                                            {
+                                                                if(i==0)
+                                                                {
+                                                                    chatreqref.child(currentuserid).child(list_user_id)
+                                                                            .removeValue()
+                                                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                @Override
+                                                                                public void onComplete(@NonNull Task<Void> task)
+                                                                                {
+                                                                                    if(task.isSuccessful())
+                                                                                    {
+                                                                                        chatreqref.child(list_user_id).child(currentuserid)
+                                                                                                .removeValue()
+                                                                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                                    @Override
+                                                                                                    public void onComplete(@NonNull Task<Void> task)
+                                                                                                    {
+                                                                                                        if(task.isSuccessful())
+                                                                                                        {
+                                                                                                            Toast.makeText(getContext(), "You have cancelled chat request", Toast.LENGTH_SHORT).show();
+
+                                                                                                        }
+                                                                                                    }
+                                                                                                });
+                                                                                    }
+                                                                                }
+                                                                            });
+                                                                }
+                                                            }
+                                                        });
+                                                        builder.show();
+
+
+                                                    }
+                                                });
                                             }
 
                                             @Override

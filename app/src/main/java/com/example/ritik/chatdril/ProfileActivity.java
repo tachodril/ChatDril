@@ -18,6 +18,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -28,7 +30,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView userprofilename,userprofilestatus;
     private Button sendmeassgebutton,declinemsgrequestbutton;
 
-    private DatabaseReference userref,chatrequestref,contactsref;
+    private DatabaseReference userref,chatrequestref,contactsref,notificationref;
     private FirebaseAuth mauth;
 
     @Override
@@ -39,6 +41,7 @@ public class ProfileActivity extends AppCompatActivity {
         userref= FirebaseDatabase.getInstance().getReference().child("Users");
         chatrequestref=FirebaseDatabase.getInstance().getReference().child("Chat Requests");
         contactsref=FirebaseDatabase.getInstance().getReference().child("Contacts");
+        notificationref=FirebaseDatabase.getInstance().getReference().child("Notifications");
 
         mauth=FirebaseAuth.getInstance();
         senderuserid=mauth.getCurrentUser().getUid();
@@ -300,6 +303,26 @@ public class ProfileActivity extends AppCompatActivity {
                                         {
                                             if(task.isSuccessful())
                                             {
+                                                HashMap<String,String> chatnotificationmap=new HashMap<>();
+                                                chatnotificationmap.put("from",senderuserid);
+                                                chatnotificationmap.put("type","request");
+
+                                                notificationref.child(receiveruserid).push()
+                                                        .setValue(chatnotificationmap)
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task)
+                                                            {
+                                                                if(task.isSuccessful())
+                                                                {
+                                                                    sendmeassgebutton.setEnabled(true);
+                                                                    current_stats="request_sent";
+                                                                    sendmeassgebutton.setText("Cancel Chat Request");
+                                                                }
+                                                            }
+                                                        });
+
+
                                                 sendmeassgebutton.setEnabled(true);
                                                 current_stats="request_sent";
                                                 sendmeassgebutton.setText("Cancel Chat Request");
