@@ -1,5 +1,7 @@
 package com.example.ritik.chatdril;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -59,7 +61,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final MessageViewholder messageViewholder, int i)
+    public void onBindViewHolder(@NonNull final MessageViewholder messageViewholder, final int i)
     {
         String msgsenderid=mauth.getCurrentUser().getUid();
         Messages messages=usermsgslist.get(i);
@@ -128,6 +130,39 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
                 Picasso.get().load(messages.getMessage()).into(messageViewholder.msgreceiverpicture);
 
+            }
+        }
+        else
+        {
+            if(fromuserid.equals(msgsenderid))
+            {
+                messageViewholder.msgsenderpicture.setVisibility(View.VISIBLE);
+
+                messageViewholder.msgsenderpicture.setBackgroundResource(R.drawable.file);
+
+                messageViewholder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent=new Intent(Intent.ACTION_VIEW, Uri.parse(usermsgslist.get(i).getMessage()));
+                        messageViewholder.itemView.getContext().startActivity(intent);
+                    }
+                });
+            }
+            else
+            {
+                messageViewholder.receiverprofileimage.setVisibility(View.VISIBLE);
+
+                messageViewholder.msgreceiverpicture.setVisibility(View.VISIBLE);
+
+                messageViewholder.msgreceiverpicture.setBackgroundResource(R.drawable.file);
+
+                messageViewholder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent=new Intent(Intent.ACTION_VIEW, Uri.parse(usermsgslist.get(i).getMessage()));
+                        messageViewholder.itemView.getContext().startActivity(intent);
+                    }
+                });
             }
         }
     }
